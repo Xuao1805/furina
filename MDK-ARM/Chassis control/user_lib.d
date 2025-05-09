@@ -1,0 +1,11 @@
+chassis control\user_lib.o: ..\algorithm\user_lib.c
+chassis control\user_lib.o: ..\algorithm\user_lib.h
+chassis control\user_lib.o: ..\application\struct_typedef.h
+chassis control\user_lib.o: ..\algorithm\arm_math.h
+chassis control\user_lib.o: ../Drivers/CMSIS/Include/core_cm4.h
+chassis control\user_lib.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+chassis control\user_lib.o: ../Drivers/CMSIS/Include/cmsis_version.h
+chassis control\user_lib.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
+chassis control\user_lib.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
+chassis control\user_lib.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+chassis control\user_lib.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
