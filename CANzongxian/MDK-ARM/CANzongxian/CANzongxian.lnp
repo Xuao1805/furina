@@ -1,0 +1,28 @@
+--cpu=Cortex-M4.fp.sp
+"canzongxian\startup_stm32f407xx.o"
+"canzongxian\main.o"
+"canzongxian\gpio.o"
+"canzongxian\can.o"
+"canzongxian\stm32f4xx_it.o"
+"canzongxian\stm32f4xx_hal_msp.o"
+"canzongxian\stm32f4xx_hal_can.o"
+"canzongxian\stm32f4xx_hal_rcc.o"
+"canzongxian\stm32f4xx_hal_rcc_ex.o"
+"canzongxian\stm32f4xx_hal_flash.o"
+"canzongxian\stm32f4xx_hal_flash_ex.o"
+"canzongxian\stm32f4xx_hal_flash_ramfunc.o"
+"canzongxian\stm32f4xx_hal_gpio.o"
+"canzongxian\stm32f4xx_hal_dma_ex.o"
+"canzongxian\stm32f4xx_hal_dma.o"
+"canzongxian\stm32f4xx_hal_pwr.o"
+"canzongxian\stm32f4xx_hal_pwr_ex.o"
+"canzongxian\stm32f4xx_hal_cortex.o"
+"canzongxian\stm32f4xx_hal.o"
+"canzongxian\stm32f4xx_hal_exti.o"
+"canzongxian\system_stm32f4xx.o"
+"canzongxian\bsp_can.o"
+"canzongxian\can_receive.o"
+--strict --scatter "CANzongxian\CANzongxian.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "CANzongxian.map" -o CANzongxian\CANzongxian.axf
