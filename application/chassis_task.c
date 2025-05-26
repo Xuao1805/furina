@@ -8,7 +8,7 @@
 
 #include "detect_task.h"
 #include "INS_task.h"
-
+ 
 #define rc_deadband_limit(input, output, dealine)        \
     {                                                    \
         if ((input) > (dealine) || (input) < -(dealine)) \
@@ -274,15 +274,18 @@ static void chassis_feedback_update(chassis_move_t *chassis_move_update)
 
     //calculate vertical speed, horizontal speed ,rotation speed, left hand rule 
     //更新底盘纵向速度 x， 平移速度y，旋转速度wz，坐标系为右手系
-    chassis_move_update->vx = (-chassis_move_update->motor_chassis[0].speed + chassis_move_update->motor_chassis[1].speed + chassis_move_update->motor_chassis[2].speed - chassis_move_update->motor_chassis[3].speed) * MOTOR_SPEED_TO_CHASSIS_SPEED_VX;
-    chassis_move_update->vy = (-chassis_move_update->motor_chassis[0].speed - chassis_move_update->motor_chassis[1].speed + chassis_move_update->motor_chassis[2].speed + chassis_move_update->motor_chassis[3].speed) * MOTOR_SPEED_TO_CHASSIS_SPEED_VY;
-    chassis_move_update->wz = (-chassis_move_update->motor_chassis[0].speed - chassis_move_update->motor_chassis[1].speed - chassis_move_update->motor_chassis[2].speed - chassis_move_update->motor_chassis[3].speed) * MOTOR_SPEED_TO_CHASSIS_SPEED_WZ / MOTOR_DISTANCE_TO_CENTER;
+    chassis_move_update->vx = (chassis_move_update->motor_chassis[1].speed + chassis_move_update->motor_chassis[2].speed - chassis_move_update->motor_chassis[0].speed - chassis_move_update->motor_chassis[3].speed) /4*sqrt(2);
+
+    chassis_move_update->vy = (chassis_move_update->motor_chassis[2].speed - chassis_move_update->motor_chassis[3].speed - chassis_move_update->motor_chassis[0].speed - chassis_move_update->motor_chassis[1].speed) /4*sqrt(2);
+    
+    chassis_move_update->wz = (chassis_move_update->motor_chassis[0].speed - chassis_move_update->motor_chassis[1].speed + chassis_move_update->motor_chassis[2].speed + chassis_move_update->motor_chassis[3].speed) /4/LENGTH_L;
 
     //calculate chassis euler angle, if chassis add a new gyro sensor,please change this code
     //计算底盘姿态角度, 如果底盘上有陀螺仪请更改这部分代码
-    chassis_move_update->chassis_yaw = rad_format(*(chassis_move_update->chassis_INS_angle + INS_YAW_ADDRESS_OFFSET));       // - chassis_move_update->chassis_yaw_motor->relative_angle);
-    chassis_move_update->chassis_pitch = rad_format(*(chassis_move_update->chassis_INS_angle + INS_PITCH_ADDRESS_OFFSET));   //- chassis_move_update->chassis_pitch_motor->relative_angle);
-    chassis_move_update->chassis_roll = *(chassis_move_update->chassis_INS_angle + INS_ROLL_ADDRESS_OFFSET);
+//   chassis_move_update->chassis_yaw = rad_format(*(chassis_move_update->chassis_INS_angle + INS_YAW_ADDRESS_OFFSET));       // - chassis_move_update->chassis_yaw_motor->relative_angle);
+
+//    chassis_move_update->chassis_pitch = rad_format(*(chassis_move_update->chassis_INS_angle + INS_PITCH_ADDRESS_OFFSET));   //- chassis_move_update->chassis_pitch_motor->relative_angle);
+//    chassis_move_update->chassis_roll = *(chassis_move_update->chassis_INS_angle + INS_ROLL_ADDRESS_OFFSET);
 }
 /**
   * @brief          accroding to the channel value of remote control, calculate chassis vertical and horizontal speed set-point
@@ -439,14 +442,14 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 }
 
 //全向轮速度解算
-static void chassis_vector_to_mecanum_wheel_speed(const fp32 vx_set, const fp32 vy_set, const fp32 wz_set, fp32 wheel_speed[4])
+static void chassis_vector_to_Omni_wheel_speed(const fp32 vx_set, const fp32 vy_set, const fp32 wz_set, fp32 wheel_speed[4])
 {
     //because the gimbal is in front of chassis, when chassis rotates, wheel 0 and wheel 1 should be slower and wheel 2 and wheel 3 should be faster
     //旋转的时候， 由于云台靠前，所以是前面两轮 0 ，1 旋转的速度变慢， 后面两轮 2,3 旋转的速度变快
-    wheel_speed[0] = -vx_set/sqrt(2) - vy_set/sqrt(2) + (CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
-    wheel_speed[1] = vx_set/sqrt(2) - vy_set/sqrt(2) + (CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
-    wheel_speed[2] = vx_set/sqrt(2) + vy_set/sqrt(2) + (-CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
-    wheel_speed[3] = -vx_set/sqrt(2) + vy_set/sqrt(2) + (-CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
+    wheel_speed[0] = -vx_set/sqrt(2) - vy_set/sqrt(2) + (LENGTH_L/2)* wz_set;
+    wheel_speed[1] = vx_set/sqrt(2) - vy_set/sqrt(2) + (LENGTH_L/2) * wz_set;
+    wheel_speed[2] = vx_set/sqrt(2) + vy_set/sqrt(2) + (LENGTH_L/2) * wz_set;
+    wheel_speed[3] = -vx_set/sqrt(2) + vy_set/sqrt(2) + (LENGTH_L/2)* wz_set;
 }
 
 
@@ -470,7 +473,7 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 
     //mecanum wheel speed calculation
     //麦轮运动分解
-    chassis_vector_to_mecanum_wheel_speed(chassis_move_control_loop->vx_set,
+    chassis_vector_to_Omni_wheel_speed(chassis_move_control_loop->vx_set,
                                           chassis_move_control_loop->vy_set, chassis_move_control_loop->wz_set, wheel_speed);
 
     if (chassis_move_control_loop->chassis_mode == CHASSIS_VECTOR_RAW)
